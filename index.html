@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#7C5CFF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>计薪工作台</title>
+<style>
+:root{
+  /* 卡通糖果色板 */
+  --bg:#FFF3DC;
+  --bg-dot:#FFE4B5;
+  --card:#ffffff;
+  --ink:#3A2A55;
+  --ink-2:#6B5B88;
+  --ink-3:#A798C4;
+  --stroke:#3A2A55;          /* 卡通描边 */
+  --line:#EFE3F5;
+  --brand:#7C5CFF;
+  --brand-soft:#EDE7FF;
+  --green:#2FBF71;
+  --green-soft:#DCFBE8;
+  --amber:#FF9F1C;
+  --amber-soft:#FFEFD2;
+  --purple:#B15CFF;
+  --purple-soft:#F2E4FF;
+  --cyan:#22C1D6;
+  --cyan-soft:#D8F6FA;
+  --red:#FF5D5D;
+  --red-soft:#FFE0E0;
+  --gold:#FFB020;
+  --radius:22px;
+  --pop:4px 4px 0 var(--stroke);         /* 硬阴影 */
+  --pop-sm:3px 3px 0 var(--stroke);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background-color:var(--bg);
+  background-image:radial-gradient(var(--bg-dot) 2.2px, transparent 2.2px);
+  background-size:22px 22px;
+  color:var(--ink);
+  font-family:"Baloo 2","Comic Sans MS","Yuanti SC","YuanTi SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  font-size:15px;line-height:1.5;
+  padding-bottom:60px;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 40px}
+
+/* ---------- Header ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{
+  width:48px;height:48px;border-radius:16px;border:3px solid var(--stroke);
+  background:linear-gradient(160deg,#FFD25E,#FF9F1C);
+  display:flex;align-items:center;justify-content:center;font-size:24px;line-height:1;
+  box-shadow:var(--pop-sm);transform:rotate(-6deg);animation:wobble 3.6s ease-in-out infinite;
+}
+@keyframes wobble{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+.brand h1{margin:0;font-size:21px;font-weight:800;letter-spacing:.5px;color:var(--ink)}
+.brand p{margin:2px 0 0;font-size:12.5px;color:var(--ink-3);font-weight:600}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+button,.btn{
+  font-family:inherit;font-size:13.5px;font-weight:700;
+  border:2.5px solid var(--stroke);background:#fff;color:var(--ink);
+  padding:8px 15px;border-radius:999px;cursor:pointer;
+  transition:transform .1s,box-shadow .1s,background .15s;
+  box-shadow:var(--pop-sm);
+}
+button:hover,.btn:hover{background:#FFF9EC;transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--stroke)}
+button:active,.btn:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--stroke)}
+.btn-primary{background:var(--brand);border-color:var(--stroke);color:#fff}
+.btn-primary:hover{background:#8F72FF;color:#fff}
+.btn-ghost{background:transparent;box-shadow:none;border-color:transparent}
+
+/* ---------- Cards ---------- */
+.card{
+  background:var(--card);border:3px solid var(--stroke);border-radius:var(--radius);
+  box-shadow:var(--pop);padding:18px;margin-bottom:18px;
+}
+.card-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px}
+.card-title h2{margin:0;font-size:16px;font-weight:800;letter-spacing:.3px}
+.card-title .sub{font-size:12.5px;color:var(--ink-3);font-weight:600}
+
+/* ---------- Settings ---------- */
+.settings{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.field label{display:block;font-size:12px;color:var(--ink-2);font-weight:700;margin-bottom:5px}
+.field .inp{display:flex;align-items:center;border:2.5px solid var(--stroke);border-radius:14px;padding:0 10px;background:#FFFDF7;transition:.15s;box-shadow:var(--pop-sm)}
+.field .inp:focus-within{background:#fff;transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--stroke)}
+.field .inp span{font-size:12.5px;color:var(--ink-3);white-space:nowrap;font-weight:700}
+.field input{flex:1;min-width:0;border:none;outline:none;padding:9px 6px;font-size:15px;font-weight:800;font-family:inherit;background:transparent;color:var(--ink)}
+.field input::-webkit-outer-spin-button,.field input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.field input[type=number]{-moz-appearance:textfield}
+.field select{flex:1;min-width:0;border:none;outline:none;padding:9px 2px;font-size:14px;font-weight:800;font-family:inherit;background:transparent;color:var(--ink);cursor:pointer}
+
+/* ---------- Layout ---------- */
+.grid{display:grid;grid-template-columns:1.35fr .95fr;gap:16px;align-items:start}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+
+/* ---------- Calendar ---------- */
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.cal-nav{display:flex;align-items:center;gap:6px}
+.cal-nav button{width:36px;height:36px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800}
+.cal-month{font-size:18px;font-weight:800;min-width:110px;text-align:center;color:var(--ink)}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-bottom:7px}
+.week div{text-align:center;font-size:12px;color:var(--ink-2);font-weight:800;padding:2px 0}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+.day{
+  position:relative;border:3px solid var(--stroke);border-radius:16px;min-height:70px;padding:6px 6px 4px;
+  background:#fff;cursor:pointer;transition:transform .12s,box-shadow .12s;
+  display:flex;flex-direction:column;gap:2px;overflow:hidden;box-shadow:var(--pop-sm);
+}
+.day:hover{transform:translate(-2px,-2px) rotate(-1.5deg);box-shadow:6px 6px 0 var(--stroke);z-index:2}
+.day .dnum{font-size:14px;font-weight:800;color:var(--ink);position:relative}
+.day .dico{position:absolute;right:-1px;top:-1px;font-size:13px;opacity:.95}
+.day .tag{font-size:10.5px;line-height:1.35;padding:1px 5px;border-radius:999px;font-weight:800;align-self:flex-start;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;border:1.5px solid rgba(58,42,85,.6)}
+.day .amt{font-size:10.5px;color:var(--ink-2);margin-top:auto;font-variant-numeric:tabular-nums;font-weight:700}
+.day.blank{border:none;background:transparent;cursor:default;box-shadow:none;transform:none}
+.day.blank:hover{border:none;transform:none;box-shadow:none}
+.day.today{box-shadow:0 0 0 4px var(--gold) inset,var(--pop-sm);border-color:var(--gold)}
+.day.today .dnum{color:#E08A00}
+.day.outside{opacity:.42}
+/* status colors */
+.day.s-work{background:var(--green-soft)}
+.day.s-work .tag{background:var(--green);color:#fff}
+.day.s-ot{background:var(--purple-soft)}
+.day.s-ot .tag{background:var(--purple);color:#fff}
+.day.s-hol{background:var(--amber-soft)}
+.day.s-hol .tag{background:var(--amber);color:#fff}
+.day.s-off{background:#F1EDF7}
+.day.s-off .tag{background:#B9AED4;color:#fff}
+.day.s-tx{background:var(--cyan-soft)}
+.day.s-tx .tag{background:var(--cyan);color:#fff}
+.day.s-leave{background:var(--red-soft)}
+.day.s-leave .tag{background:var(--red);color:#fff}
+.day.s-half{background:#FFEFD2}
+.day.s-half .tag{background:#FB923C;color:#fff}
+.day.s-pre{background:repeating-linear-gradient(135deg,#F4F0FA,#F4F0FA 7px,#E7E0F2 7px,#E7E0F2 14px);cursor:default;border-style:dashed}
+.day.s-pre .tag{background:#B9AED4;color:#fff}
+.day.s-pre:hover{transform:none;box-shadow:var(--pop-sm);border-color:var(--stroke)}
+
+.hol-note{
+  display:flex;align-items:flex-start;gap:10px;margin-top:14px;padding:11px 14px;
+  border:3px solid var(--stroke);border-radius:16px;font-size:12.5px;font-weight:700;line-height:1.6;
+  box-shadow:var(--pop-sm);
+}
+.hol-note.warn{background:#FFF3D0}
+.hol-note.ok{background:var(--green-soft);font-size:12px}
+.hol-note .nb{
+  flex:none;font-family:inherit;font-size:12px;font-weight:800;padding:5px 12px;border-radius:999px;
+  border:2.5px solid var(--stroke);background:#fff;color:var(--ink);box-shadow:2px 2px 0 rgba(58,42,85,.2);cursor:pointer;
+}
+.hol-note .nb:active{transform:translate(2px,2px);box-shadow:none}
+
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;padding-top:14px;border-top:3px dashed var(--line)}
+.legend i{width:12px;height:12px;border-radius:50%;border:2px solid var(--stroke);display:inline-block;margin-right:5px;vertical-align:-1px}
+.legend span{font-size:12px;color:var(--ink-2);display:inline-flex;align-items:center;font-weight:700}
+
+/* ---------- Summary ---------- */
+.money-card{
+  background:linear-gradient(150deg,#8F72FF,#7C5CFF 60%,#B15CFF);color:#fff;
+  border:3px solid var(--stroke);border-radius:var(--radius);padding:20px;
+  box-shadow:var(--pop);margin-bottom:16px;position:relative;overflow:hidden;
+}
+.money-card::after{content:"💰";position:absolute;right:-6px;bottom:-14px;font-size:96px;opacity:.20;transform:rotate(-12deg)}
+.money-card>*{position:relative;z-index:1}
+.money-card .lbl{font-size:12.5px;opacity:.9;letter-spacing:.3px;font-weight:700}
+.money-card .val{font-size:36px;font-weight:800;letter-spacing:-.5px;margin:4px 0 2px;font-variant-numeric:tabular-nums;text-shadow:2px 2px 0 rgba(58,42,85,.25)}
+.money-card .val small{font-size:17px;font-weight:800;opacity:.9;margin-right:2px}
+.money-card .break{font-size:12.5px;opacity:.92;line-height:1.7;font-weight:600}
+.money-card .break b{font-weight:800}
+.money-card hr{border:none;border-top:3px dashed rgba(255,255,255,.35);margin:12px 0}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:14px}
+.kpi{background:#fff;border:3px solid var(--stroke);border-radius:18px;padding:13px 14px;box-shadow:var(--pop-sm)}
+.kpi .k{font-size:11.5px;color:var(--ink-2);margin-bottom:4px;font-weight:800}
+.kpi .v{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.3px;color:var(--ink)}
+.kpi .v small{font-size:12px;font-weight:800;color:var(--ink-3);margin-left:2px}
+.kpi .x{font-size:11.5px;color:var(--ink-3);margin-top:2px;font-weight:700}
+
+.tx-box{background:var(--cyan-soft);border:3px solid var(--stroke);border-radius:18px;padding:14px;margin-bottom:14px;box-shadow:var(--pop-sm)}
+.tx-box .row{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:#0B7285;padding:3px 0;font-weight:700}
+.tx-box .row b{font-weight:800;font-size:15px;font-variant-numeric:tabular-nums}
+.tx-box .big{font-size:25px;font-weight:800;color:#0B7285}
+
+/* ---------- Breakdown table ---------- */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:9px 8px;border-bottom:2px dashed var(--line)}
+th{font-size:11.5px;color:var(--ink-2);font-weight:800;letter-spacing:.4px}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+.pill{display:inline-block;font-size:11px;padding:3px 10px;border-radius:999px;font-weight:800;border:2px solid rgba(58,42,85,.55)}
+
+/* ---------- Chart ---------- */
+.bars{display:flex;align-items:flex-end;gap:10px;height:130px;padding:6px 0 0}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end}
+.bar .b{width:100%;max-width:44px;background:linear-gradient(180deg,#A78BFA,#7C5CFF);border:3px solid var(--stroke);border-radius:12px 12px 6px 6px;min-height:4px;transition:.3s;box-shadow:2px 2px 0 rgba(58,42,85,.18)}
+.bar:hover .b{transform:translateY(-3px)}
+.bar.cur .b{background:linear-gradient(180deg,#FFC24D,#FF9F1C)}
+.bar .t{font-size:11px;color:var(--ink-2);font-weight:800}
+.bar .m{font-size:11px;font-weight:800;font-variant-numeric:tabular-nums}
+
+/* ---------- Live ---------- */
+.live{background:linear-gradient(160deg,#FFFFFF,#FFF9EC)}
+.live-state-row{font-size:12.5px;color:var(--ink-2);margin-bottom:12px;display:flex;align-items:center;font-weight:700}
+.live-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:980px){.live-grid{grid-template-columns:1fr}}
+.live-box{background:#fff;border:3px solid var(--stroke);border-radius:20px;padding:15px 16px;min-width:0;box-shadow:var(--pop-sm)}
+.live-box.alt{background:var(--cyan-soft)}
+.live-box.total{background:linear-gradient(160deg,#FFF3D0,#FFE7A8)}
+.live-box .lbl{font-size:12px;color:var(--ink-2);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:800}
+.live-box .big{font-size:30px;font-weight:800;letter-spacing:-.9px;font-variant-numeric:tabular-nums;color:var(--brand);line-height:1.25;text-shadow:2px 2px 0 rgba(58,42,85,.10)}
+.live-box .big.tot-c{color:#E08A00}
+.live-box .big small{font-size:14px;font-weight:800;margin-right:2px;opacity:.85}
+.live-box .big.alt-c{color:#0B7285}
+.track{height:12px;background:#F1EDF7;border:2.5px solid var(--stroke);border-radius:999px;overflow:hidden;margin:10px 0 8px}
+.fill{height:100%;width:0;background:repeating-linear-gradient(115deg,#8F72FF,#8F72FF 10px,#A78BFA 10px,#A78BFA 20px);border-radius:999px;transition:width .9s linear}
+.lmeta{font-size:12px;color:var(--ink-2);line-height:1.7;font-weight:700}
+.lmeta b{font-weight:800;color:var(--ink)}
+.dot-live{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--green);border:2px solid var(--stroke);margin-right:6px;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+
+/* ---------- Modal ---------- */
+.mask{position:fixed;inset:0;background:rgba(58,42,85,.45);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+.mask.on{display:flex}
+.modal{background:#fff;border:3px solid var(--stroke);border-radius:24px;width:100%;max-width:380px;box-shadow:6px 6px 0 var(--stroke);overflow:hidden;animation:pop .22s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(.9) rotate(-2deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.modal h3{margin:0;padding:16px 18px 4px;font-size:17px;font-weight:800}
+.modal .md-sub{margin:0;padding:0 18px 12px;font-size:12.5px;color:var(--ink-2);font-weight:700}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 18px 14px}
+.opt{border:2.5px solid var(--stroke);border-radius:16px;padding:10px;cursor:pointer;transition:.12s;text-align:center;font-size:13px;font-weight:800;color:var(--ink);background:#FFFDF7;box-shadow:2px 2px 0 rgba(58,42,85,.18)}
+.opt:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 rgba(58,42,85,.22)}
+.opt.on{background:var(--brand-soft);border-color:var(--brand);color:#5B3FD6}
+.opt .dot{width:10px;height:10px;border-radius:50%;border:2px solid rgba(58,42,85,.6);display:inline-block;margin-right:6px;vertical-align:1px}
+.md-foot{padding:12px 18px 18px;border-top:3px dashed var(--line);display:flex;gap:8px}
+.md-foot button{flex:1}
+.hours-row{display:flex;align-items:center;gap:8px;padding:0 18px 14px}
+.hours-row input{flex:1;border:2.5px solid var(--stroke);border-radius:14px;padding:9px 12px;font-size:14px;font-family:inherit;outline:none;background:#FFFDF7;font-weight:800;color:var(--ink)}
+.hours-row input:focus{background:#fff;box-shadow:3px 3px 0 var(--stroke)}
+.hint{font-size:11.5px;color:var(--ink-2);padding:0 18px 12px;margin:0;font-weight:700}
+.lv-body{padding:0 18px 6px}
+.lv-field{margin-bottom:12px}
+.lv-field label{display:block;font-size:12px;color:var(--ink-2);font-weight:800;margin-bottom:5px}
+.lv-field input{width:100%;border:2.5px solid var(--stroke);border-radius:14px;padding:9px 12px;font-size:14px;font-family:inherit;outline:none;color:var(--ink);background:#FFFDF7;font-weight:800}
+.lv-field input:focus{background:#fff;box-shadow:3px 3px 0 var(--stroke)}
+.lv-quick{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding-bottom:6px}
+.lv-quick button{padding:5px 12px;font-size:12.5px;border-radius:999px}
+.btn-leave{background:var(--red);border-color:var(--stroke);color:#fff;font-weight:800}
+.btn-leave:hover{background:#FF7575;color:#fff}
+.btn-late{background:var(--amber);border-color:var(--stroke);color:#fff;font-weight:800}
+.btn-late:hover{background:#FFB03A;color:#fff}
+
+/* ---------- Toast ---------- */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(24px);background:#fff;color:var(--ink);border:3px solid var(--stroke);padding:11px 20px;border-radius:999px;font-size:13.5px;font-weight:800;opacity:0;pointer-events:none;transition:.25s cubic-bezier(.34,1.56,.64,1);z-index:80;box-shadow:var(--pop)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.foot{text-align:center;font-size:12px;color:var(--ink-2);margin-top:24px;line-height:1.8;font-weight:700}
+.foot code{background:#fff;border:2px solid var(--stroke);padding:1px 7px;border-radius:8px;font-size:11.5px}
+
+/* ---------- 移动端适配 ---------- */
+@media(max-width:560px){
+  .wrap{padding:14px 10px 30px}
+  .card{padding:14px;border-radius:18px}
+  .days,.week{gap:4px}
+  .day{min-height:58px;padding:5px 4px 3px;border-width:2.5px;box-shadow:2px 2px 0 var(--stroke)}
+  .day .tag{font-size:9px;padding:0 4px;border-width:1.5px}
+  .day .dnum{font-size:12.5px}
+  .day .dico{font-size:11px}
+  .day .amt{font-size:9.5px}
+  .money-card .val{font-size:30px}
+  .money-card::after{font-size:70px}
+  .live-box .big{font-size:26px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand">
+      <div class="logo">💰</div>
+      <div>
+        <h1>计薪工作台</h1>
+        <p>日薪制 · 节假日与周末不计薪 · 加班累计调休</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn-late" onclick="openLate()">⏰ 登记迟到</button>
+      <button class="btn-leave" onclick="openLeave()">＋ 登记请假</button>
+      <button onclick="resetMonth()">重置本月</button>
+      <button onclick="exportCSV()">导出明细</button>
+      <button class="btn-primary" onclick="openSettings()">参数设置</button>
+    </div>
+  </div>
+
+  <!-- 参数设置 -->
+  <div class="card">
+    <div class="card-title"><h2>⚙️ 计薪参数</h2><span class="sub">修改后实时重算</span></div>
+    <div class="settings">
+      <div class="field">
+        <label>日薪（元/天）</label>
+        <div class="inp"><input type="number" id="p-rate" step="1" min="0"><span>元</span></div>
+      </div>
+      <div class="field">
+        <label>电脑补贴（元/天）</label>
+        <div class="inp"><input type="number" id="p-sub" step="1" min="0"><span>元</span></div>
+      </div>
+      <div class="field">
+        <label>标准工时（小时/天）</label>
+        <div class="inp"><input type="number" id="p-hours" step="0.5" min="1"><span>小时</span></div>
+      </div>
+      <div class="field">
+        <label>期初调休余额</label>
+        <div class="inp"><input type="number" id="p-open" step="0.5"><span>小时</span></div>
+      </div>
+      <div class="field">
+        <label>入职日期</label>
+        <div class="inp"><input type="date" id="p-start"></div>
+      </div>
+      <div class="field">
+        <label>上班时间</label>
+        <div class="inp"><input type="time" id="p-ws" step="60"></div>
+      </div>
+      <div class="field">
+        <label>下班时间</label>
+        <div class="inp"><input type="time" id="p-we" step="60"></div>
+      </div>
+      <div class="field">
+        <label>午休（不计薪）</label>
+        <div class="inp"><input type="time" id="p-ls" step="60"><span style="padding:0 2px">–</span><input type="time" id="p-le" step="60"></div>
+      </div>
+      <div class="field">
+        <label>迟到扣款方式</label>
+        <div class="inp">
+          <select id="p-lmode">
+            <option value="minute">按分钟扣</option>
+            <option value="fixed">每次固定扣</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" id="f-lpm">
+        <label>每分钟扣款（0=按日薪折算）</label>
+        <div class="inp"><input type="number" id="p-lpm" step="0.01" min="0"><span>元/分</span></div>
+      </div>
+      <div class="field" id="f-lfix" style="display:none">
+        <label>每次扣款</label>
+        <div class="inp"><input type="number" id="p-lfix" step="1" min="0"><span>元/次</span></div>
+      </div>
+      <div class="field">
+        <label>免罚分钟（宽限）</label>
+        <div class="inp"><input type="number" id="p-lgrace" step="1" min="0"><span>分钟</span></div>
+      </div>
+    </div>
+    <p class="hint" id="late-rule" style="padding:8px 0 0;font-size:12px"></p>
+  </div>
+
+  <!-- 实时计薪 -->
+  <div class="card live">
+    <div class="card-title">
+      <h2>⏱️ 实时计薪 · 每秒更新</h2>
+      <span class="sub">计薪口径：仅实际出勤计薪 · 法定节假日与周末不计薪</span>
+    </div>
+    <div class="live-state-row" id="live-state"></div>
+    <div class="live-grid">
+      <div class="live-box">
+        <div class="lbl">当日工资 · 实时</div>
+        <div class="big"><small>¥</small><span id="live-today">0.0000</span></div>
+        <div class="track"><div class="fill" id="live-bar"></div></div>
+        <div class="lmeta" id="live-meta"></div>
+      </div>
+      <div class="live-box alt">
+        <div class="lbl">当月工资 · 累计</div>
+        <div class="big alt-c"><small>¥</small><span id="live-month">0.00</span></div>
+        <div class="lmeta" id="live-month-meta"></div>
+        <div class="lmeta" id="live-rate" style="margin-top:6px"></div>
+      </div>
+      <div class="live-box total">
+        <div class="lbl">所有工资 · 入职至今</div>
+        <div class="big tot-c"><small>¥</small><span id="live-all">0.00</span></div>
+        <div class="lmeta" id="live-all-meta"></div>
+        <div class="lmeta" id="live-all-sub" style="margin-top:6px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- 日历 -->
+    <div class="card">
+      <div class="card-title">
+        <h2>📅 考勤日历</h2>
+        <span class="sub" id="cal-sub">点击日期可修改状态</span>
+      </div>
+      <div class="cal-head">
+        <div class="cal-nav">
+          <button onclick="shift(-1)" title="上一月">‹</button>
+          <div class="cal-month" id="mLabel"></div>
+          <button onclick="shift(1)" title="下一月">›</button>
+        </div>
+        <button onclick="gotoToday()">回到本月</button>
+      </div>
+      <div class="week">
+        <div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div><div>日</div>
+      </div>
+      <div class="days" id="days"></div>
+      <div class="hol-note" id="cal-note" style="display:none"></div>
+      <div class="legend">
+        <span><i style="background:#2FBF71"></i>出勤</span>
+        <span><i style="background:#B15CFF"></i>加班（累计调休）</span>
+        <span><i style="background:#FF9F1C"></i>法定节假日（不计薪）</span>
+        <span><i style="background:#22C1D6"></i>调休（扣余额）</span>
+        <span><i style="background:#FF5D5D"></i>请假/缺勤（不计薪）</span>
+        <span><i style="background:#B9AED4"></i>周末休息</span>
+      </div>
+    </div>
+
+    <!-- 汇总 -->
+    <div>
+      <div class="money-card">
+        <div class="lbl">本月应发工资（满勤口径）</div>
+        <div class="val"><small>¥</small><span id="m-total">0</span></div>
+        <div class="break" id="m-break"></div>
+        <hr>
+        <div class="break" id="m-sub"></div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi">
+          <div class="k">计薪天数</div>
+          <div class="v"><span id="k-days">0</span><small>天</small></div>
+          <div class="x" id="k-days-x"></div>
+        </div>
+        <div class="kpi">
+          <div class="k">本月加班</div>
+          <div class="v"><span id="k-ot">0</span><small>小时</small></div>
+          <div class="x" id="k-ot-x">不计入工资</div>
+        </div>
+        <div class="kpi" id="kpi-leave">
+          <div class="k">本月请假</div>
+          <div class="v"><span id="k-leave">0</span><small>天</small></div>
+          <div class="x" id="k-leave-x">未请假</div>
+        </div>
+        <div class="kpi" id="kpi-late">
+          <div class="k">本月迟到</div>
+          <div class="v"><span id="k-late">0</span><small>次</small></div>
+          <div class="x" id="k-late-x">未迟到</div>
+        </div>
+      </div>
+
+      <div class="tx-box">
+        <div style="font-size:12px;color:#0B7285;opacity:.9;font-weight:800;margin-bottom:6px">调休时长池（跨月累计）</div>
+        <div class="big"><span id="t-bal">0</span> 小时 <span style="font-size:13px;font-weight:600;opacity:.8">≈ <span id="t-bal-d">0</span> 天</span></div>
+        <div id="t-warn" style="display:none;margin-top:6px;font-size:12px;font-weight:600;color:var(--red);background:#fff;padding:6px 9px;border-radius:8px"></div>
+        <div style="height:8px"></div>
+        <div class="row"><span>期初 / 上月结转</span><b id="t-open">0 h</b></div>
+        <div class="row"><span>本月加班累计</span><b id="t-add">+0 h</b></div>
+        <div class="row"><span>本月已调休</span><b id="t-use">-0 h</b></div>
+        <div class="row"><span>历史累计加班</span><b id="t-all">0 h</b></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><h2>📊 近 6 个月工资</h2></div>
+        <div class="bars" id="bars"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 明细 -->
+  <div class="card">
+    <div class="card-title"><h2>🧾 本月计薪明细</h2><span class="sub" id="det-sub"></span></div>
+    <table>
+      <thead><tr>
+        <th>项目</th><th class="n">天数 / 时长</th><th class="n">单价</th><th class="n">金额</th>
+      </tr></thead>
+      <tbody id="det-body"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <h2>🏖️ 请假记录</h2>
+      <span class="sub">登记后当天不计薪，工资自动扣减 · <a href="javascript:openLeave()" style="color:var(--brand);text-decoration:none">＋ 新增</a></span>
+    </div>
+    <table>
+      <thead><tr><th>日期</th><th>类型</th><th class="n">扣除天数</th><th class="n">减少工资</th><th>事由</th><th class="n">操作</th></tr></thead>
+      <tbody id="leave-body"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><h2>⏰ 迟到记录</h2><span class="sub" id="late-sub">按规则扣款，工资实时扣减</span></div>
+    <table>
+      <thead><tr><th>日期</th><th>类型</th><th class="n">迟到时长</th><th class="n">扣款</th><th>事由</th><th class="n">操作</th></tr></thead>
+      <tbody id="late-body"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><h2>🔄 加班与调休流水</h2><span class="sub">全部记录，跨月累计</span></div>
+    <table>
+      <thead><tr><th>日期</th><th>类型</th><th class="n">变动</th><th class="n">池余额</th><th>备注</th><th class="n">操作</th></tr></thead>
+      <tbody id="log-body"></tbody>
+    </table>
+  </div>
+
+  <div class="foot">
+    数据保存在本机浏览器 <code>localStorage</code>，不上传任何服务器。<br>
+    法定节假日依据国务院办公厅通知内置（2026 年已收录，2027 年待发布后自动同步）。<br>
+    <a href="#" onclick="checkHolidayUpdate();return false;" style="color:var(--brand);font-weight:800">🔄 立即检查放假安排更新</a>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="mask" id="mask" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3 id="md-title">设置日期</h3>
+    <p class="md-sub" id="md-date"></p>
+    <div class="opts" id="md-opts"></div>
+    <div class="hours-row" id="md-hours" style="display:none">
+      <span style="font-size:13px;color:var(--ink-2);white-space:nowrap">时长</span>
+      <input type="number" id="md-h" step="0.5" min="0" placeholder="小时">
+      <span style="font-size:13px;color:var(--ink-3)">小时</span>
+    </div>
+    <div class="hours-row" id="md-part" style="display:none">
+      <div class="opts" style="flex:1;padding:0;gap:8px">
+        <div class="opt on" data-pv="1" onclick="pickPartVal(1)">全天假 · 不计薪</div>
+        <div class="opt" data-pv="0.5" onclick="pickPartVal(0.5)">半天假 · 半薪</div>
+      </div>
+    </div>
+    <div class="hours-row" id="md-late">
+      <span style="font-size:13px;color:var(--ink-2);white-space:nowrap">⏰ 迟到</span>
+      <input type="number" id="md-late-m" step="1" min="0" placeholder="0 = 未迟到">
+      <span style="font-size:13px;color:var(--ink-3)">分钟</span>
+    </div>
+    <p class="hint" id="md-hint"></p>
+    <div class="md-foot">
+      <button onclick="clearDay()">恢复默认</button>
+      <button class="btn-primary" onclick="saveDay()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 请假登记 -->
+<div class="mask" id="lmask" onclick="if(event.target===this)closeLeave()">
+  <div class="modal">
+    <h3>🏖️ 登记请假</h3>
+    <p class="md-sub">登记后当天不计薪（半天按半薪），工资实时扣减</p>
+    <div class="lv-body">
+      <div class="lv-field">
+        <label>开始日期</label>
+        <input type="date" id="lv-s" onchange="updateLeaveHint()">
+      </div>
+      <div class="lv-field">
+        <label>结束日期</label>
+        <input type="date" id="lv-e" onchange="updateLeaveHint()">
+      </div>
+      <div class="lv-field">
+        <label>请假类型</label>
+        <div class="opts" style="padding:0;gap:8px">
+          <div class="opt on" data-p="1" onclick="pickPart(1)">全天 · 不计薪</div>
+          <div class="opt" data-p="0.5" onclick="pickPart(0.5)">半天 · 计半薪</div>
+        </div>
+      </div>
+      <div class="lv-field">
+        <label>事由（可选）</label>
+        <input type="text" id="lv-n" placeholder="如：事假 / 病假 / 年假">
+      </div>
+      <div class="lv-quick">
+        <span style="font-size:12px;color:var(--ink-3)">快捷：</span>
+        <button onclick="quickLeave(0)">今天</button>
+        <button onclick="quickLeave(1)">明天</button>
+        <button onclick="quickLeave(-1)">昨天</button>
+      </div>
+    </div>
+    <p class="hint" id="lv-hint"></p>
+    <div class="md-foot">
+      <button onclick="closeLeave()">取消</button>
+      <button class="btn-primary" onclick="submitLeave()">确认登记</button>
+    </div>
+  </div>
+</div>
+
+<!-- 迟到登记 -->
+<div class="mask" id="tmask" onclick="if(event.target===this)closeLate()">
+  <div class="modal">
+    <h3>⏰ 登记迟到</h3>
+    <p class="md-sub">登记后当天工资实时扣减</p>
+    <div class="lv-body">
+      <div class="lv-field">
+        <label>日期</label>
+        <input type="date" id="lt-d" onchange="updateLateHint()">
+      </div>
+      <div class="lv-field">
+        <label>迟到时长</label>
+        <div class="inp" style="border:2.5px solid var(--stroke);border-radius:14px;padding:0 10px;background:#FFFDF7;box-shadow:3px 3px 0 var(--stroke)">
+          <input type="number" id="lt-m" step="1" min="0" value="10" oninput="updateLateHint()" style="flex:1;border:none;outline:none;padding:9px 4px;font-size:15px;font-weight:800;font-family:inherit;background:transparent;color:var(--ink)">
+          <span style="font-size:12.5px;font-weight:800;color:var(--ink-3)">分钟</span>
+        </div>
+      </div>
+      <div class="lv-field">
+        <label>事由（可选）</label>
+        <input type="text" id="lt-n" placeholder="如：堵车 / 起晚 / 送孩子">
+      </div>
+      <div class="lv-quick">
+        <span style="font-size:12px;color:var(--ink-3)">快捷：</span>
+        <button onclick="quickLate(0)">今天</button>
+        <button onclick="quickLate(-1)">昨天</button>
+        <button onclick="setLateMin(5)">5 分钟</button>
+        <button onclick="setLateMin(15)">15 分钟</button>
+        <button onclick="setLateMin(30)">30 分钟</button>
+      </div>
+    </div>
+    <p class="hint" id="lt-hint"></p>
+    <div class="md-foot">
+      <button onclick="closeLate()">取消</button>
+      <button class="btn-primary" onclick="submitLate()">确认登记</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ 法定节假日数据（按年索引）============
+   h = 放假日期，w = 调休上班日（周末但需上班）
+   历年数据由国务院办公厅《关于 XXXX 年部分节假日安排的通知》确定，
+   通常在**前一年 11 月中旬**发布。未发布的年份暂无数据，
+   页面启动时会尝试拉取同目录 holidays.json 获取更新（部署环境可用）。      */
+const HOLIDAYS = {
+  2026: {
+    src: "国务院办公厅 2025-11-04 发布",
+    h: {
+      "2026-01-01":"元旦","2026-01-02":"元旦","2026-01-03":"元旦",
+      "2026-02-15":"春节","2026-02-16":"春节(除夕)","2026-02-17":"春节","2026-02-18":"春节","2026-02-19":"春节","2026-02-20":"春节","2026-02-21":"春节","2026-02-22":"春节","2026-02-23":"春节",
+      "2026-04-04":"清明","2026-04-05":"清明","2026-04-06":"清明",
+      "2026-05-01":"劳动节","2026-05-02":"劳动节","2026-05-03":"劳动节","2026-05-04":"劳动节","2026-05-05":"劳动节",
+      "2026-06-19":"端午","2026-06-20":"端午","2026-06-21":"端午",
+      "2026-09-25":"中秋","2026-09-26":"中秋","2026-09-27":"中秋",
+      "2026-10-01":"国庆","2026-10-02":"国庆","2026-10-03":"国庆","2026-10-04":"国庆","2026-10-05":"国庆","2026-10-06":"国庆","2026-10-07":"国庆"
+    },
+    w: {
+      "2026-01-04":"调休上班",
+      "2026-02-14":"调休上班","2026-02-28":"调休上班",
+      "2026-05-09":"调休上班",
+      "2026-09-20":"调休上班","2026-10-10":"调休上班"
+    }
+  }
+};
+const HOLIDAY_VERSION = "builtin-2026-10-09";   // 内置数据版本戳
+
+// 用户自定义的节假日 / 调休上班日
+let custom = { h:{}, w:{} };
+
+/** 取某年的放假表（可能为空 = 该年度安排尚未发布） */
+function holTable(y){ return HOLIDAYS[String(y)] || null; }
+/** 该年度放假安排是否已发布 */
+function hasHolidayData(y){
+  const t = holTable(y);
+  return !!(t && ((t.h && Object.keys(t.h).length) || (t.w && Object.keys(t.w).length)));
+}
+/** 节日名称 */
+function holidayName(ds){ const t = holTable(+ds.slice(0,4)); return (t && t.h && t.h[ds]) || custom.h[ds] || null; }
+
+/* 启动时：先用本机缓存的远程数据补全，再后台拉取最新 holidays.json */
+function initHolidayData(){
+  try{
+    const cached = localStorage.getItem(KEY + "-holidays");
+    if(cached){ const j = JSON.parse(cached); if(j && j.years) for(const y in j.years) HOLIDAYS[y] = j.years[y]; }
+  }catch(e){}
+  fetchLatestHolidays();
+}
+/** @returns "changed" 有更新 | "ok" 已是最新 | "fail" 拉取失败（离线 / file://） */
+async function fetchLatestHolidays(){
+  try{
+    const r = await fetch("holidays.json?t=" + Date.now(), {cache:"no-store"});
+    if(!r.ok) return "fail";
+    const j = await r.json();
+    if(!j || !j.years) return "fail";
+    let changed = false;
+    for(const y in j.years){
+      const a = JSON.stringify(HOLIDAYS[y] || {}), b = JSON.stringify(j.years[y]);
+      if(a !== b){ HOLIDAYS[y] = j.years[y]; changed = true; }
+    }
+    try{ localStorage.setItem(KEY + "-holidays", JSON.stringify({version:j.version||"", years:j.years})); }catch(e){}
+    if(changed){ render(); }
+    return changed ? "changed" : "ok";
+  }catch(e){ return "fail"; }   // file:// 或离线环境静默降级
+}
+/** 手动点按：立即检查一次更新 */
+async function checkHolidayUpdate(){
+  toast("正在检查放假安排更新…");
+  const st = await fetchLatestHolidays();
+  const years = Object.keys(HOLIDAYS).sort().join("、");
+  if(st === "changed"){ toast("✅ 已同步最新放假安排"); }
+  else if(st === "ok"){ toast(`已是最新（已收录 ${years} 年）`); }
+  else toast("无法连接更新源，稍后重试");
+}
+
+/* ============ 状态定义 ============ */
+const TYPES = {
+  work:  {name:"出勤",     color:"#2FBF71", paid:true,  cls:"s-work",  ico:"🙂"},
+  ot:    {name:"加班",     color:"#B15CFF", paid:true,  cls:"s-ot",    hour:true, ico:"🌙"},
+  hol:   {name:"法定节假日",color:"#FF9F1C", paid:false, cls:"s-hol",   ico:"🎉"},   // 放假不计薪
+  tx:    {name:"调休",     color:"#22C1D6", paid:true,  cls:"s-tx",    hour:true, ico:"😴"},
+  leave: {name:"请假",     color:"#FF5D5D", paid:false, cls:"s-leave", ico:"🏖️"},
+  off:   {name:"休息",     color:"#B9AED4", paid:false, cls:"s-off",   ico:"💤"},
+  pre:   {name:"未入职",   color:"#B9AED4", paid:false, cls:"s-pre",   ico:"🚧"}
+};
+
+/* ============ 状态 ============ */
+const KEY = "salary-workbench-v1";
+let S = {
+  rate: 870,
+  subsidy: 10,
+  stdHours: 8,
+  opening: 0,
+  startDate: "2026-09-20",
+  workStart: "08:30",
+  workEnd:   "17:30",
+  lunchStart:"12:00",
+  lunchEnd:  "13:00",
+  lateMode:  "minute",   // minute=按分钟扣 | fixed=每次固定扣
+  latePerMin: 0,         // 元/分钟，0 = 自动按日薪折算（日薪 ÷ 标准工时分钟）
+  lateFixed: 50,         // 元/次（fixed 模式）
+  lateGrace: 5,          // 免罚分钟（迟到不超过该分钟数不扣）
+  records: {}   // "YYYY-MM-DD": {t:"ot", h:2, late:15, note:""}
+};
+let cur = new Date();          // 当前查看月份
+let editing = null;            // 正在编辑的日期字符串
+let pendingType = null;
+
+/* ============ 工具 ============ */
+const pad = n => String(n).padStart(2,"0");
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = s => { const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); };
+const money = n => n.toLocaleString("zh-CN",{minimumFractionDigits:2,maximumFractionDigits:2});
+const money0 = n => Math.round(n).toLocaleString("zh-CN");
+const num = v => { const n = parseFloat(v); return isNaN(n)?0:n; };
+
+function isHoliday(ds){ const t = holTable(+ds.slice(0,4)); return !!(t && t.h && t.h[ds]) || !!custom.h[ds]; }
+function isMakeupWork(ds){ const t = holTable(+ds.slice(0,4)); return !!(t && t.w && t.w[ds]) || !!custom.w[ds]; }
+function isWeekend(d){ const w=d.getDay(); return w===0||w===6; }
+
+function isBeforeStart(ds){ return !!S.startDate && ds < S.startDate; }
+
+/* ============ 迟到扣款 ============ */
+/** 每分钟扣款：填 0 时自动按日薪折算（日薪 ÷ 标准工时分钟） */
+function latePerMinute(){
+  const v = num(S.latePerMin);
+  if(v > 0) return v;
+  const daily = num(S.rate) + num(S.subsidy);
+  return daily / (num(S.stdHours) * 60);
+}
+/** 单日迟到扣款金额（元） */
+function lateDeduct(r){
+  if(!r) return 0;
+  const m = num(r.late);
+  if(m <= 0) return 0;
+  const eff = Math.max(0, m - num(S.lateGrace));   // 扣除免罚分钟
+  if(eff <= 0) return 0;
+  const v = (S.lateMode === "fixed") ? num(S.lateFixed) : eff * latePerMinute();
+  return Math.round(v * 100) / 100;
+}
+/** 扣款规则说明文本 */
+function lateRuleText(){
+  return S.lateMode === "fixed"
+    ? `迟到 1 次扣 ¥${num(S.lateFixed)}`
+    : `每分钟扣 ¥${latePerMinute().toFixed(2)}`;
+}
+
+/** 默认状态：未入职>法定假日>调休上班>周末>工作日 */
+function defaultType(ds){
+  if(isBeforeStart(ds)) return "pre";
+  if(isHoliday(ds)) return "hol";
+  if(isMakeupWork(ds)) return "work";
+  const d = parse(ds), w = d.getDay();
+  return (w===0||w===6) ? "off" : "work";
+}
+function getRec(ds){
+  if(S.records[ds]) return S.records[ds];
+  return { t: defaultType(ds), h:0, note:"", auto:true };
+}
+function monthKey(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}`; }
+function daysInMonth(y,m){ return new Date(y,m+1,0).getDate(); }
+
+/* ============ 计算引擎 ============ */
+/** 全局调休池：期初 + 全部加班小时 - 全部调休消耗小时 */
+function txPoolUpTo(endYm){
+  let add=0, use=0;
+  const keys = Object.keys(S.records).sort();
+  for(const ds of keys){
+    if(ds > endYm + "-31") break;
+    const r = S.records[ds];
+    if(r.t === "ot") add += num(r.h);
+    if(r.t === "tx") use += num(r.h) || S.stdHours;
+  }
+  return { add, use, total: num(S.opening) + add - use };
+}
+/** 计薪系数：1 / 0.5 / 0（半天请假计 0.5） */
+function paidFactor(r){
+  if(r.t === "leave") return 1 - (r.part === undefined ? 1 : num(r.part));
+  const T = TYPES[r.t];
+  return T && T.paid ? 1 : 0;
+}
+/** 请假扣减的天数当量 */
+function leaveUnits(r){ return r.t === "leave" ? 1 - paidFactor(r) : 0; }
+
+function calcMonth(y,m){
+  const mk = monthKey(new Date(y,m,1));
+  const dim = daysInMonth(y,m);
+  const rate = num(S.rate), sub = num(S.subsidy);
+  let paidDays=0, holDays=0, otDays=0, otHours=0, txDays=0, txHours=0, leaveDays=0, leaveUnits=0;
+  let halfPaid=0, offDays=0, workDays=0, preDays=0;
+  let lateTimes=0, lateMin=0, lateCut=0;
+  const list = [];
+  for(let d=1; d<=dim; d++){
+    const ds = `${mk}-${pad(d)}`;
+    const r = getRec(ds);
+    const f = paidFactor(r);
+    paidDays += f;
+    if(num(r.late) > 0){ lateTimes++; lateMin += num(r.late); lateCut += lateDeduct(r); }
+    if(r.t==="pre") preDays++;
+    if(r.t==="hol") holDays++;
+    if(r.t==="ot"){ otDays++; otHours += num(r.h); workDays++; }
+    if(r.t==="tx"){ txDays++; txHours += num(r.h)||S.stdHours; }
+    if(r.t==="leave"){
+      leaveDays++; leaveUnits += (1 - f);
+      if(f > 0) halfPaid += f;                 // 半天假：仍计半薪
+    }
+    if(r.t==="off") offDays++;
+    if(r.t==="work") workDays++;
+    list.push({ds, r, paid: f > 0, f});
+  }
+  paidDays = Math.round(paidDays*100)/100;
+  lateCut = Math.round(lateCut*100)/100;
+  const daily = rate + sub;
+  const base = paidDays * rate;
+  const subs = paidDays * sub;
+  return { mk, dim, paidDays, holDays, otDays, otHours, txDays, txHours, leaveDays, leaveUnits, halfPaid,
+           offDays, workDays, preDays, lateTimes, lateMin, lateCut,
+           daily, base, subs, gross: base + subs, total: base + subs - lateCut, list };
+}
+
+/* ============ 实时计薪 ============ */
+const toSec = t => { if(!t) return 0; const [h,m] = t.split(":").map(Number); return (h||0)*3600 + (m||0)*60; };
+const fmtDur = s => { s = Math.max(0, Math.round(s)); const h=Math.floor(s/3600), m=Math.floor(s%3600/60); return h+ (m? " 小时 "+m+" 分" : " 小时"); };
+
+/** 当日工作时段总秒数（已扣午休） */
+function workSpanSec(){
+  const ws=toSec(S.workStart), we=toSec(S.workEnd), ls=toSec(S.lunchStart), le=toSec(S.lunchEnd);
+  let span = we - ws - Math.max(0, le - ls);
+  if(!(span > 0)) span = num(S.stdHours)*3600;
+  return span;
+}
+/** 此刻已工作秒数（0 ~ workSpanSec） */
+function workedSec(now){
+  const ws=toSec(S.workStart), we=toSec(S.workEnd), ls=toSec(S.lunchStart), le=toSec(S.lunchEnd);
+  const n = now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds();
+  const span = workSpanSec();
+  if(n <= ws) return 0;
+  if(n >= we) return span;
+  let s = n - ws;
+  if(le > ls){                                   // 扣除午休重叠部分
+    const ov = Math.min(n, le) - Math.max(ws, ls);
+    if(ov > 0) s -= ov;
+  }
+  return Math.max(0, Math.min(s, span));
+}
+/** 今日实时金额 + 元信息 */
+function liveToday(){
+  const ds = ymd(new Date());
+  const r = getRec(ds);
+  const daily = num(S.rate) + num(S.subsidy);
+  const span = workSpanSec();
+  const perSec = daily / span;                   // 元/秒
+  const t = r.t;
+  let sec, amt, note;
+  if(t === "pre"){ return {t, amt:0, perSec, span, sec:0, note:"尚未入职，不计薪"}; }
+  if(t === "leave"){
+    const f = paidFactor(r);
+    if(f <= 0) return {t, amt:0, perSec, span, sec:0, note:"今日请假，不计薪"};
+    const now0 = new Date(), s0 = workedSec(now0);
+    return {t, amt: f*daily*(s0/span), perSec, span, sec:s0, note:`今日半天假，按半薪 ¥${money(f*daily)} 计时`};
+  }
+  if(t === "off"){ return {t, amt:0, perSec, span, sec:0, note:"今日休息，不计薪"}; }
+  if(t === "hol"){ return {t, amt:0, perSec, span, sec:0, note:"法定节假日放假，不计薪"}; }
+  if(t === "tx"){
+    sec = span; amt = daily;
+    note = "调休带薪，按全天计发";
+    return applyLate({t, amt, perSec, span, sec, note}, r);
+  }
+  // 出勤 / 加班：按实际已工作秒数
+  const now = new Date();
+  sec = workedSec(now);
+  amt = sec * perSec;
+  note = (now.getHours()*3600+now.getMinutes()*60+now.getSeconds()) < toSec(S.workStart)
+    ? "尚未到上班时间，计时未开始"
+    : (sec >= span ? "今日工时已完成，按满勤计发" : "正在计时中");
+  return applyLate({t, amt, perSec, span, sec, note, gross: sec*perSec}, r);
+}
+/** 对当日金额应用迟到扣款 */
+function applyLate(o, r){
+  const cut = lateDeduct(r);
+  o.cut = cut;
+  if(cut > 0){
+    o.gross = o.amt;
+    o.amt = Math.max(0, o.amt - cut);
+    o.lateNote = `⏰ 今日迟到 ${num(r.late)} 分钟，扣 ¥${money(cut)}`;
+  }
+  return o;
+}
+/** 本月累计（含此刻实时部分） */
+function liveMonth(){
+  const now = new Date();
+  const y=now.getFullYear(), m=now.getMonth(), d=now.getDate();
+  const daily = num(S.rate) + num(S.subsidy);
+  let past = 0, pastDays = 0;
+  for(let i=1;i<d;i++){
+    const ds = `${y}-${pad(m+1)}-${pad(i)}`;
+    const r = getRec(ds);
+    const f = paidFactor(r);
+    if(f > 0){ past += daily * f - lateDeduct(r); pastDays += f; }
+  }
+  const lt = liveToday();
+  return { past, pastDays, today: lt.amt, total: past + lt.amt, lt };
+}
+/** 入职至今累计（含此刻实时部分） */
+function liveAll(){
+  const daily = num(S.rate) + num(S.subsidy);
+  const start = S.startDate ? parse(S.startDate) : new Date();
+  const today = new Date(); today.setHours(0,0,0,0);
+  let sum = 0, days = 0, months = {};
+  if(start < today){
+    const d = new Date(start.getTime());
+    while(d < today){
+      const ds = ymd(d);
+      const rec = getRec(ds);
+      const f = paidFactor(rec);
+      if(f > 0){
+        const net = daily * f - lateDeduct(rec);
+        sum += net; days += f;
+        const mk = ds.slice(0,7);
+        months[mk] = (months[mk]||0) + net;
+      }
+      d.setDate(d.getDate()+1);
+    }
+  }
+  const lt = liveToday();
+  const mkNow = ymd(new Date()).slice(0,7);
+  if(lt.amt > 0) months[mkNow] = (months[mkNow]||0) + lt.amt;
+  return { past: sum, pastDays: days, today: lt.amt, total: sum + lt.amt, months };
+}
+
+/* ============ 渲染 ============ */
+function render(){
+  renderParams();
+  renderLive();
+  renderCal();
+  renderSummary();
+  renderDetail();
+  renderLog();
+  renderLeaves();
+  renderLates();
+  renderBars();
+}
+
+function renderLive(){
+  const lt = liveToday();
+  const lm = liveMonth();
+  const daily = num(S.rate) + num(S.subsidy);
+  const T = TYPES[lt.t];
+  const st = document.getElementById("live-state");
+  st.innerHTML = `<span class="dot-live" style="background:${T.color}"></span>${T.name} · 每秒 +¥${lt.perSec.toFixed(4)}`;
+
+  document.getElementById("live-today").textContent = lt.amt.toFixed(4);
+  const pct = lt.span ? Math.min(100, lt.sec / lt.span * 100) : 0;
+  document.getElementById("live-bar").style.width = pct.toFixed(2) + "%";
+  document.getElementById("live-meta").innerHTML =
+    `已计时 <b>${fmtDur(lt.sec)}</b> / ${fmtDur(lt.span)}　进度 <b>${pct.toFixed(1)}%</b><br>${lt.note}`
+    + (lt.lateNote ? `<br><span style="color:var(--red)">${lt.lateNote}</span>` : "")
+    + `<br>今日满勤 <b>¥${money(daily)}</b>`;
+
+  document.getElementById("live-month").textContent = lm.total.toFixed(2);
+  document.getElementById("live-month-meta").innerHTML =
+    `已过计薪 <b>${lm.pastDays}</b> 天 × ¥${money0(daily)} = ¥${money(lm.past)}　+　今日实时 ¥${lm.today.toFixed(2)}`;
+  const c = calcMonth(new Date().getFullYear(), new Date().getMonth());
+  document.getElementById("live-rate").innerHTML =
+    `本月满勤预计 <b>¥${money(c.total)}</b>（计薪 ${c.paidDays} 天${c.preDays? "，入职前 "+c.preDays+" 天不计薪":""}）`;
+
+  // ③ 入职至今累计
+  const la = liveAll();
+  document.getElementById("live-all").textContent = la.total.toFixed(2);
+  document.getElementById("live-all-meta").innerHTML =
+    `自 <b>${S.startDate}</b> 入职 · 日均 ¥${money0(daily)}`;
+  const todayFactor = lt.span ? (lt.sec / lt.span) * paidFactor(getRec(ymd(new Date()))) : 0;
+  const totalDays = Math.round((la.pastDays + todayFactor)*100)/100;
+  const detail = Object.keys(la.months).sort().map(k=>`${Number(k.split("-")[1])}月 ¥${money0(la.months[k])}`).join("　·　");
+  document.getElementById("live-all-sub").innerHTML =
+    `累计计薪 <b>${totalDays}</b> 天<br><span style="color:var(--ink-3)">${detail}</span>`;
+}
+
+function renderParams(){
+  const els = {"p-rate":S.rate,"p-sub":S.subsidy,"p-hours":S.stdHours,"p-open":S.opening,
+               "p-start":S.startDate,"p-ws":S.workStart,"p-we":S.workEnd,"p-ls":S.lunchStart,"p-le":S.lunchEnd,
+               "p-lmode":S.lateMode,"p-lpm":S.latePerMin,"p-lfix":S.lateFixed,"p-lgrace":S.lateGrace};
+  for(const id in els){ const e=document.getElementById(id); if(e && document.activeElement!==e) e.value = els[id]; }
+  const fixed = S.lateMode === "fixed";
+  const f1 = document.getElementById("f-lpm"), f2 = document.getElementById("f-lfix");
+  if(f1) f1.style.display = fixed ? "none" : "";
+  if(f2) f2.style.display = fixed ? "" : "none";
+  const el = document.getElementById("late-rule");
+  if(el) el.innerHTML = `⏰ 迟到规则：${lateRuleText()}　·　宽限 ${num(S.lateGrace)} 分钟内不扣款`;
+}
+
+/** 日历下方：该年度放假安排的状态提示 */
+function renderHolNote(y){
+  const el = document.getElementById("cal-note");
+  if(!el) return;
+  const t = holTable(y);
+  if(!hasHolidayData(y)){
+    el.className = "hol-note warn";
+    el.style.display = "flex";
+    el.innerHTML = `<span style="font-size:16px;line-height:1.3">📢</span>
+      <div style="flex:1;min-width:0"><b>${y} 年放假安排尚未发布</b><br>
+      <span style="color:var(--ink-2);font-weight:700">国务院办公厅通常在前一年 <b>11 月中旬</b> 公布。在此之前，${y} 年仅按周六日休息计算，法定节假日无法自动标识；官方发布后本页会自动同步。</span></div>
+      <button class="nb" onclick="checkHolidayUpdate()">检查更新</button>`;
+  } else {
+    const hn = Object.keys(t.h||{}).length, wn = Object.keys(t.w||{}).length;
+    el.className = "hol-note ok";
+    el.style.display = "flex";
+    el.innerHTML = `<span style="font-size:15px;line-height:1.3">✅</span>
+      <div><b>${y} 年放假安排已内置</b>：法定节假日 ${hn} 天、调休上班 ${wn} 天
+      <span style="color:var(--ink-2)">（${t.src || "已同步数据"}）</span></div>`;
+  }
+}
+
+function renderCal(){
+  const y = cur.getFullYear(), m = cur.getMonth();
+  document.getElementById("mLabel").textContent = `${y} 年 ${m+1} 月`;
+  renderHolNote(y);
+  const first = new Date(y,m,1);
+  let startDow = first.getDay();         // 0=周日
+  startDow = (startDow + 6) % 7;         // 转为周一=0
+  const dim = daysInMonth(y,m);
+  const todayStr = ymd(new Date());
+  const box = document.getElementById("days");
+  box.innerHTML = "";
+  for(let i=0;i<startDow;i++){ const b=document.createElement("div"); b.className="day blank"; box.appendChild(b); }
+  for(let d=1; d<=dim; d++){
+    const ds = `${y}-${pad(m+1)}-${pad(d)}`;
+    const r = getRec(ds);
+    const T = TYPES[r.t];
+    const el = document.createElement("div");
+    el.className = "day " + (T?T.cls:"s-off") + (ds===todayStr?" today":"");
+    let tag = T ? T.name : "休息";
+    if(r.t==="hol"){ tag = holidayName(ds) || "节假日"; }
+    if(r.t==="work" && isMakeupWork(ds) && S.records[ds]===undefined){ tag = "调休上班"; }
+    let extra = "";
+    if(r.t==="ot") extra = r.h ? `${r.h}h` : "加班";
+    if(r.t==="tx") extra = `${num(r.h)||S.stdHours}h`;
+    if(r.t==="leave") tag = paidFactor(r) > 0 ? "半天假" : "请假";
+    const f = paidFactor(r);
+    const cut = lateDeduct(r);
+    let amt = f > 0 ? `¥${money0((num(S.rate)+num(S.subsidy))*f - cut)}` : "不计薪";
+    if(cut > 0) amt += ` ⏰-${money0(cut)}`;
+    const ico = T ? T.ico : "💤";
+    el.innerHTML = `<div class="dnum">${d}<span class="dico">${num(r.late)>0?"⏰":ico}</span></div>` +
+      (extra?`<span class="tag">${tag} ${extra}</span>`:`<span class="tag">${tag}</span>`) +
+      `<div class="amt">${amt}</div>`;
+    if(r.note) el.title = r.note;
+    if(r.t === "pre"){
+      el.innerHTML = `<div class="dnum">${d}<span class="dico">🚧</span></div><span class="tag">未入职</span><div class="amt">不计薪</div>`;
+    } else {
+      el.onclick = () => openModal(ds);
+    }
+    box.appendChild(el);
+  }
+}
+
+/** 截至某月末的调休池 */
+function txPoolAtEndOf(y,m){
+  const end = `${y}-${pad(m+1)}-31`;
+  let add=0, use=0;
+  for(const ds of Object.keys(S.records).sort()){
+    if(ds > end) break;
+    const r = S.records[ds];
+    if(r.t === "ot") add += num(r.h);
+    if(r.t === "tx") use += (num(r.h) || S.stdHours);
+  }
+  return { add, use, total: num(S.opening) + add - use };
+}
+
+function renderSummary(){
+  const y=cur.getFullYear(), m=cur.getMonth();
+  const c = calcMonth(y,m);
+  document.getElementById("m-total").textContent = money0(c.total);
+  const daily = num(S.rate)+num(S.subsidy);
+  document.getElementById("m-break").innerHTML =
+    `计薪 <b>${c.paidDays}</b> 天 × <b>¥${money0(daily)}</b>（日薪 ${money0(S.rate)} + 补贴 ${money0(S.subsidy)}）`
+    + (c.lateCut > 0 ? `　−　⏰ 迟到扣款 <b>¥${money0(c.lateCut)}</b>` : "");
+  document.getElementById("m-sub").innerHTML =
+    `出勤 ${c.workDays} 天 · 法定节假日 ${c.holDays} 天（不计薪） · 调休 ${c.txDays} 天 · 请假 ${c.leaveDays} 天 · 周末 ${c.offDays} 天（不计薪）`
+    + (c.lateTimes ? ` · ⏰ 迟到 ${c.lateTimes} 次 / ${c.lateMin} 分钟` : "");
+
+  document.getElementById("k-days").textContent = c.paidDays;
+  document.getElementById("k-days-x").textContent = c.preDays
+    ? `日历 ${c.dim} 天（入职前 ${c.preDays} 天不计薪）`
+    : `日历天数 ${c.dim} 天`;
+  document.getElementById("k-ot").textContent = c.otHours;
+  document.getElementById("k-ot-x").textContent = c.otDays ? `共 ${c.otDays} 天，已计入调休池` : "不计入工资";
+  document.getElementById("k-leave").textContent = c.leaveUnits;
+  document.getElementById("k-leave-x").textContent = c.leaveUnits
+    ? `减少 ¥${money0(c.leaveUnits*(num(S.rate)+num(S.subsidy)))}`
+    : "未请假";
+  document.getElementById("k-late").textContent = c.lateTimes;
+  document.getElementById("k-late-x").textContent = c.lateTimes
+    ? `共 ${c.lateMin} 分钟，扣 ¥${money0(c.lateCut)}`
+    : "未迟到";
+
+  // 调休池：上月结转 + 本月加班 - 本月调休
+  const prev = (m===0) ? txPoolAtEndOf(y-1,11) : txPoolAtEndOf(y,m-1);
+  const carry = prev.total;
+  const bal = carry + c.otHours - c.txHours;
+  const balEl = document.getElementById("t-bal");
+  balEl.textContent = Math.round(bal*10)/10;
+  balEl.style.color = bal < 0 ? "var(--red)" : "";
+  document.getElementById("t-bal-d").textContent = (Math.round(bal/num(S.stdHours)*100)/100);
+  document.getElementById("t-warn").style.display = bal < 0 ? "block" : "none";
+  document.getElementById("t-warn").textContent = bal < 0
+    ? `已透支 ${Math.abs(Math.round(bal*10)/10)} 小时，需先加班补足或改为请假`
+    : "";
+  document.getElementById("t-open").textContent = money0(carry) + " h";
+  document.getElementById("t-add").textContent = "+" + c.otHours + " h";
+  document.getElementById("t-use").textContent = "-" + c.txHours + " h";
+  // 历史累计加班（全部）
+  let allAdd=0; for(const k in S.records){ if(S.records[k].t==="ot") allAdd += num(S.records[k].h); }
+  document.getElementById("t-all").textContent = allAdd + " h";
+
+  document.getElementById("det-sub").textContent =
+    `${y} 年 ${m+1} 月 · 共 ${c.dim} 天`;
+  document.getElementById("cal-sub").textContent =
+    `本月计薪 ${c.paidDays} 天 · 点击日期可修改状态`;
+}
+
+function renderDetail(){
+  const y=cur.getFullYear(), m=cur.getMonth();
+  const c = calcMonth(y,m);
+  const rate=num(S.rate), sub=num(S.subsidy);
+  let plainWork=0;
+  for(const it of c.list){ if(it.r.t==="work") plainWork++; }
+  const fmtD = n => Number.isInteger(n) ? n : n.toFixed(1);
+  const data = [
+    {label:"🙂 正常出勤", days:plainWork, unit:rate+sub, color:"#2FBF71"},
+    {label:"🌙 加班日出勤（工资照发）", days:c.otDays, unit:rate+sub, color:"#B15CFF"},
+    {label:"🎉 法定节假日（放假不计薪）", days:c.holDays, unit:0, color:"#FF9F1C"},
+    {label:"😴 调休（带薪，扣余额）", days:c.txDays, unit:rate+sub, color:"#22C1D6"},
+    {label:"🌤️ 半天假（计半薪）", days:c.halfPaid, unit:rate+sub, color:"#FB923C"},
+    {label:"🏖️ 请假 / 缺勤（不计薪）", days:c.leaveUnits, unit:0, color:"#FF5D5D"},
+    {label:"💤 周末休息", days:c.offDays, unit:0, color:"#B9AED4"}
+  ];
+  let html = "";
+  for(const d of data){
+    if(!d.days) continue;
+    html += `<tr>
+      <td><span class="pill" style="background:${d.color}22;color:${d.color}">${d.label}</span></td>
+      <td class="n">${fmtD(d.days)} 天</td>
+      <td class="n">${d.unit? "¥"+money0(d.unit) : "—"}</td>
+      <td class="n"><b>${d.unit? "¥"+money(d.days*d.unit) : "¥0"}</b></td>
+    </tr>`;
+  }
+  if(c.lateCut > 0){
+    html += `<tr style="background:#FFF6E6">
+      <td><span class="pill" style="background:#FFEFD2;color:#C2600A">⏰ 迟到扣款（${c.lateTimes} 次 / ${c.lateMin} 分钟）</span></td>
+      <td class="n">—</td>
+      <td class="n">${lateRuleText()}</td>
+      <td class="n" style="color:var(--red)"><b>-¥${money(c.lateCut)}</b></td></tr>`;
+  }
+  html += `<tr style="background:#fafbfd">
+    <td><b>合计应发${c.lateCut>0?"（已扣迟到）":""}</b></td><td class="n"><b>${fmtD(c.paidDays)} 天</b></td>
+    <td class="n">—</td><td class="n" style="color:var(--brand)"><b>¥${money(c.total)}</b></td></tr>`;
+  // 底薪/补贴拆分
+  html += `<tr style="background:#fafbfd">
+    <td style="color:var(--ink-3);font-size:12.5px">其中：基本工资</td><td class="n" style="color:var(--ink-3)">${fmtD(c.paidDays)} 天</td>
+    <td class="n" style="color:var(--ink-3)">¥${money0(rate)}</td><td class="n" style="color:var(--ink-3)">¥${money(c.paidDays*rate)}</td></tr>`;
+  html += `<tr style="background:#fafbfd">
+    <td style="color:var(--ink-3);font-size:12.5px">其中：电脑补贴</td><td class="n" style="color:var(--ink-3)">${fmtD(c.paidDays)} 天</td>
+    <td class="n" style="color:var(--ink-3)">¥${money0(sub)}</td><td class="n" style="color:var(--ink-3)">¥${money(c.paidDays*sub)}</td></tr>`;
+  document.getElementById("det-body").innerHTML = html;
+}
+
+function renderLog(){
+  const keys = Object.keys(S.records).filter(k=>S.records[k].t==="ot"||S.records[k].t==="tx").sort().reverse();
+  const body = document.getElementById("log-body");
+  if(!keys.length){ body.innerHTML = `<tr><td colspan="6" style="color:var(--ink-3);text-align:center;padding:18px">暂无加班 / 调休记录</td></tr>`; return; }
+  // 按时间正序滚动计算余额
+  const asc = keys.slice().reverse();
+  const balMap = {};
+  let b = num(S.opening);
+  for(const k of asc){
+    const r = S.records[k];
+    if(r.t==="ot") b += num(r.h); else b -= (num(r.h)||S.stdHours);
+    balMap[k] = Math.round(b*10)/10;
+  }
+  let html="";
+  for(const k of keys){
+    const r = S.records[k];
+    const T = TYPES[r.t];
+    const h = num(r.h) || (r.t==="tx"? S.stdHours : 0);
+    html += `<tr>
+      <td>${k}</td>
+      <td><span class="pill" style="background:${T.color}22;color:${T.color}">${T.name}</span></td>
+      <td class="n" style="color:${r.t==="ot"?"var(--green)":"var(--cyan)"};font-weight:600">${r.t==="ot"?"+":"-"}${h} h</td>
+      <td class="n">${balMap[k]} h</td>
+      <td style="color:var(--ink-2)">${r.note||"—"}</td>
+      <td class="n"><button style="padding:4px 10px;font-size:12px" onclick="delRec('${k}')">删除</button></td>
+    </tr>`;
+  }
+  body.innerHTML = html;
+}
+
+function renderBars(){
+  const box = document.getElementById("bars");
+  const now = new Date();
+  let arr = [];
+  for(let i=5;i>=0;i--){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const c = calcMonth(d.getFullYear(), d.getMonth());
+    arr.push({m:d.getMonth()+1, k:monthKey(d), v:c.total, cur:i===0});
+  }
+  const max = Math.max(...arr.map(a=>a.v), 1);
+  box.innerHTML = arr.map(a=>{
+    const h = Math.max(4, Math.round(a.v/max*88));
+    return `<div class="bar ${a.cur?'cur':''}">
+      <div class="m">${Math.round(a.v/1000*10)/10}k</div>
+      <div class="b" style="height:${h}px"></div>
+      <div class="t">${a.m}月</div>
+    </div>`;
+  }).join("");
+}
+
+/* ============ 交互 ============ */
+function shift(n){
+  cur = new Date(cur.getFullYear(), cur.getMonth()+n, 1);
+  render();
+}
+function gotoToday(){ cur = new Date(); render(); }
+
+function openModal(ds){
+  editing = ds;
+  const r = getRec(ds);
+  const d = parse(ds);
+  const wk = ["周日","周一","周二","周三","周四","周五","周六"][d.getDay()];
+  document.getElementById("md-date").textContent = `${ds} ${wk}`;
+  pendingType = (r.t === "pre") ? "work" : r.t;
+  pendingPart = (r.part === undefined) ? 1 : num(r.part);
+  const lmEl = document.getElementById("md-late-m");
+  if(lmEl){ lmEl.value = num(r.late) || ""; }
+  const lateRow = document.getElementById("md-late");
+  if(lateRow) lateRow.style.display = (r.t === "pre" || r.t === "off" || r.t === "hol") ? "none" : "flex";
+  const box = document.getElementById("md-opts");
+  box.innerHTML = Object.keys(TYPES).filter(k=>k!=="pre").map(k=>{
+    const T = TYPES[k];
+    return `<div class="opt ${k===pendingType?'on':''}" data-t="${k}" onclick="pickType('${k}')">
+      <span style="font-size:15px;margin-right:2px">${T.ico}</span>${T.name}</div>`;
+  }).join("");
+  syncHours();
+  document.getElementById("mask").classList.add("on");
+}
+function pickType(t){
+  pendingType = t;
+  document.querySelectorAll("#md-opts .opt").forEach(e=>e.classList.toggle("on", e.dataset.t===t));
+  syncHours();
+}
+let pendingPart = 1;
+function pickPartVal(v){
+  pendingPart = v;
+  document.querySelectorAll("#md-part .opt[data-pv]").forEach(e=>e.classList.toggle("on", e.dataset.pv===String(v)));
+}
+function syncHours(){
+  const T = TYPES[pendingType];
+  const row = document.getElementById("md-hours");
+  const prt = document.getElementById("md-part");
+  const hint = document.getElementById("md-hint");
+  prt.style.display = (pendingType === "leave") ? "flex" : "none";
+  if(T && T.hour){
+    row.style.display = "flex";
+    const r = getRec(editing);
+    document.getElementById("md-h").value = (r.t===pendingType && r.h) ? r.h : (pendingType==="tx"? S.stdHours : "");
+    hint.textContent = pendingType==="ot"
+      ? "加班不计入工资，时长将累计到调休池，后续可调休。"
+      : "调休从调休池扣除对应时长，当天工资正常计发。";
+  } else {
+    row.style.display = "none";
+    if(pendingType === "leave"){
+      hint.textContent = pendingPart === 1
+        ? "全天假：当天不计薪，工资直接扣减一天。"
+        : "半天假：当天按半薪计发（¥" + money0((num(S.rate)+num(S.subsidy))/2) + "）。";
+      pickPartVal(pendingPart);
+    } else {
+      hint.textContent = pendingType==="hol" ? "法定节假日放假，当天不计薪。"
+        : pendingType==="work" ? "正常出勤，按日薪 + 补贴计发。" : "休息日不计薪。";
+    }
+  }
+}
+function saveDay(){
+  const needHour = TYPES[pendingType].hour;
+  let h = num(document.getElementById("md-h").value);
+  if(needHour && h <= 0) h = S.stdHours;          // 未填时长时按标准工时计
+  const old = S.records[editing] || {};
+  const rec = { t: pendingType, h: needHour ? h : 0, note: old.note || "" };
+  if(pendingType === "leave") rec.part = pendingPart;
+  const lm = num(document.getElementById("md-late-m").value);
+  if(lm > 0) rec.late = lm;                        // 迟到分钟（叠加在当天状态上）
+  if(rec.t === defaultType(editing) && !rec.h && !rec.late){
+    delete S.records[editing];                     // 与默认一致，不落库
+  } else {
+    S.records[editing] = rec;
+  }
+  save(); closeModal(); render();
+  const cut = lateDeduct(rec);
+  toast("已保存 " + editing + (needHour ? ` · ${h}h` : rec.part===0.5 ? " · 半天假" : "")
+        + (rec.late ? ` · 迟到 ${rec.late} 分钟${cut>0? " 扣 ¥"+money(cut) : "（免罚）"}` : ""));
+}
+function clearDay(){
+  delete S.records[editing];
+  save(); closeModal(); render();
+  toast("已恢复默认");
+}
+function delRec(k){
+  delete S.records[k];
+  save(); render(); toast("已删除 " + k);
+}
+function closeModal(){ document.getElementById("mask").classList.remove("on"); editing=null; }
+
+/* ============ 请假登记 ============ */
+let leavePart = 1;
+function openLeave(ds){
+  const d = ds || ymd(new Date());
+  document.getElementById("lv-s").value = d;
+  document.getElementById("lv-e").value = d;
+  document.getElementById("lv-n").value = "";
+  pickPart(1);
+  document.getElementById("lmask").classList.add("on");
+}
+function closeLeave(){ document.getElementById("lmask").classList.remove("on"); }
+function pickPart(p){
+  leavePart = p;
+  document.querySelectorAll("#lmask .opt[data-p]").forEach(e=>e.classList.toggle("on", e.dataset.p===String(p)));
+  updateLeaveHint();
+}
+function quickLeave(offset){
+  const d = new Date(); d.setDate(d.getDate()+offset);
+  const s = ymd(d);
+  document.getElementById("lv-s").value = s;
+  document.getElementById("lv-e").value = s;
+  updateLeaveHint();
+}
+function updateLeaveHint(){
+  const s = document.getElementById("lv-s").value, e = document.getElementById("lv-e").value;
+  const el = document.getElementById("lv-hint");
+  if(!s || !e){ el.textContent = "请选择请假日期"; return; }
+  if(e < s){ el.textContent = "结束日期不能早于开始日期"; return; }
+  const daily = num(S.rate) + num(S.subsidy);
+  let n = 0, off = 0;
+  for(let d = parse(s); d <= parse(e); d.setDate(d.getDate()+1)){
+    const t = getRec(ymd(d)).t;
+    if(t === "pre" || t === "off"){ off++; continue; }
+    n++;
+  }
+  if(!n){ el.textContent = "所选区间内没有需要出勤的日子，无需登记"; return; }
+  const cut = n * leavePart;
+  el.innerHTML = `共 <b>${n}</b> 天${off ? `（已跳过 ${off} 个休息 / 未入职日）` : ""}，扣减 <b>${cut}</b> 天，工资减少 <b style="color:var(--red)">¥${money(cut*daily)}</b>`;
+}
+function submitLeave(){
+  const s = document.getElementById("lv-s").value, e = document.getElementById("lv-e").value;
+  if(!s || !e || e < s){ toast("请选择有效的日期区间"); return; }
+  const note = document.getElementById("lv-n").value.trim();
+  let n = 0;
+  for(let d = parse(s); d <= parse(e); d.setDate(d.getDate()+1)){
+    const ds = ymd(d), t = getRec(ds).t;
+    if(t === "pre" || t === "off") continue;   // 休息日 / 未入职不重复登记
+    S.records[ds] = { t:"leave", h:0, part:leavePart, note };
+    n++;
+  }
+  save(); closeLeave(); render();
+  toast(n ? `已登记 ${n} 天请假，工资已扣减` : "所选区间无需登记");
+}
+function renderLeaves(){
+  const keys = Object.keys(S.records).filter(k=>S.records[k].t==="leave").sort().reverse();
+  const body = document.getElementById("leave-body");
+  const daily = num(S.rate) + num(S.subsidy);
+  if(!keys.length){
+    body.innerHTML = `<tr><td colspan="6" style="color:var(--ink-3);text-align:center;padding:18px">暂无请假记录 · 未登记的日子默认按出勤计薪，记得及时登记</td></tr>`;
+    return;
+  }
+  let html = "";
+  for(const k of keys){
+    const r = S.records[k], f = paidFactor(r), cut = 1 - f;
+    html += `<tr>
+      <td>${k}</td>
+      <td><span class="pill" style="background:${f>0?"#FFEFD2":"#FFE0E0"};color:${f>0?"#C2600A":"#D93A3A"}">${f>0?"🌤️ 半天假":"🏖️ 全天假"}</span></td>
+      <td class="n">-${cut} 天</td>
+      <td class="n" style="color:var(--red);font-weight:600">-¥${money(cut*daily)}</td>
+      <td style="color:var(--ink-2)">${r.note||"—"}</td>
+      <td class="n"><button style="padding:4px 10px;font-size:12px" onclick="delRec('${k}')">撤销</button></td>
+    </tr>`;
+  }
+  body.innerHTML = html;
+}
+
+/* ============ 迟到登记 ============ */
+function openLate(ds){
+  document.getElementById("lt-d").value = ds || ymd(new Date());
+  document.getElementById("lt-m").value = 10;
+  document.getElementById("lt-n").value = "";
+  updateLateHint();
+  document.getElementById("tmask").classList.add("on");
+}
+function closeLate(){ document.getElementById("tmask").classList.remove("on"); }
+function quickLate(offset){
+  const d = new Date(); d.setDate(d.getDate()+offset);
+  document.getElementById("lt-d").value = ymd(d);
+  updateLateHint();
+}
+function setLateMin(m){
+  document.getElementById("lt-m").value = m;
+  updateLateHint();
+}
+function updateLateHint(){
+  const ds = document.getElementById("lt-d").value;
+  const m = num(document.getElementById("lt-m").value);
+  const el = document.getElementById("lt-hint");
+  if(!ds){ el.textContent = "请选择日期"; return; }
+  const r = getRec(ds);
+  const cut = lateDeduct({late:m});
+  const grace = num(S.lateGrace);
+  if(r.t === "pre"){ el.innerHTML = `该日期尚未入职，无需登记`; return; }
+  if(r.t === "off" || r.t === "hol"){ el.innerHTML = `该日期为${r.t==="hol"?"法定节假日":"休息日"}，本就不计薪，登记迟到不会重复扣款`; return; }
+  if(r.t === "leave"){ el.innerHTML = `该日期已登记请假（当天不计薪），迟到不再重复扣款`; return; }
+  if(m <= 0){ el.innerHTML = `请填写迟到分钟数`; return; }
+  if(m <= grace){
+    el.innerHTML = `在 <b>${grace} 分钟</b>宽限内，<b style="color:var(--green)">不扣款</b>`;
+  } else {
+    el.innerHTML = `迟到 <b>${m}</b> 分钟（超出宽限 ${m-grace} 分钟），扣款 <b style="color:var(--red)">¥${money(cut)}</b>　·　规则：${lateRuleText()}`;
+  }
+}
+function submitLate(){
+  const ds = document.getElementById("lt-d").value;
+  const m = num(document.getElementById("lt-m").value);
+  if(!ds){ toast("请选择日期"); return; }
+  if(m <= 0){ toast("请填写迟到分钟数"); return; }
+  const r = getRec(ds);
+  if(r.t === "pre" || r.t === "off" || r.t === "hol"){ toast("该日期本就不计薪，无需登记"); return; }
+  const note = document.getElementById("lt-n").value.trim();
+  // 保留当天原有状态（加班 / 调休 / 出勤等），只叠加迟到分钟
+  const rec = Object.assign({}, S.records[ds] || {t:"work", h:0}, {late:m, note: note || (S.records[ds] && S.records[ds].note) || ""});
+  S.records[ds] = rec;
+  save(); closeLate(); render();
+  const cut = lateDeduct(rec);
+  toast(cut > 0 ? `已登记迟到 ${m} 分钟，扣 ¥${money(cut)}` : `已登记迟到 ${m} 分钟（宽限内，不扣款）`);
+}
+function renderLates(){
+  const keys = Object.keys(S.records).filter(k=>num(S.records[k].late) > 0).sort().reverse();
+  const body = document.getElementById("late-body");
+  if(!body) return;
+  let cutAll = 0;
+  for(const k of keys) cutAll += lateDeduct(S.records[k]);
+  const sub = document.getElementById("late-sub");
+  if(sub) sub.textContent = keys.length
+    ? `共 ${keys.length} 次 / 累计扣 ¥${money(Math.round(cutAll*100)/100)}`
+    : `规则：${lateRuleText()}，宽限 ${num(S.lateGrace)} 分钟`;
+  if(!keys.length){
+    body.innerHTML = `<tr><td colspan="6" style="color:var(--ink-3);text-align:center;padding:18px">暂无迟到记录 · 迟到会按规则扣款，记得及时登记</td></tr>`;
+    return;
+  }
+  let html = "";
+  for(const k of keys){
+    const r = S.records[k], cut = lateDeduct(r);
+    html += `<tr>
+      <td>${k}</td>
+      <td><span class="pill" style="background:#FFEFD2;color:#C2600A">⏰ 迟到 ${num(r.late)} 分钟</span></td>
+      <td class="n">${num(r.late)} 分钟</td>
+      <td class="n" style="color:${cut>0?"var(--red)":"var(--green)"};font-weight:800">${cut>0? "-¥"+money(cut) : "免罚"}</td>
+      <td style="color:var(--ink-2)">${r.note||"—"}</td>
+      <td class="n"><button style="padding:4px 10px;font-size:12px" onclick="undoLate('${k}')">撤销</button></td>
+    </tr>`;
+  }
+  body.innerHTML = html;
+}
+function undoLate(ds){
+  const r = S.records[ds];
+  if(!r) return;
+  delete r.late;
+  // 若该日只剩默认状态（无加班时长、非请假），则整条删除，避免残留空记录
+  if(!num(r.h) && r.part === undefined && r.t === defaultType(ds)) delete S.records[ds];
+  save(); render(); toast(`已撤销 ${ds} 的迟到登记`);
+}
+
+function resetMonth(){
+  const y=cur.getFullYear(), m=cur.getMonth(), mk=monthKey(new Date(y,m,1));
+  if(!confirm(`确定重置 ${y} 年 ${m+1} 月的所有考勤标记吗？（加班与调休记录将一并清除）`)) return;
+  Object.keys(S.records).forEach(k=>{ if(k.startsWith(mk)) delete S.records[k]; });
+  save(); render(); toast("本月已重置");
+}
+
+function openSettings(){
+  document.getElementById("p-rate").focus();
+  document.getElementById("p-rate").scrollIntoView({behavior:"smooth",block:"center"});
+  toast("直接在上方修改参数，实时生效");
+}
+
+/* ============ 导出 ============ */
+function exportCSV(){
+  const y=cur.getFullYear(), m=cur.getMonth();
+  const c = calcMonth(y,m);
+  const rate=num(S.rate), sub=num(S.subsidy);
+  let rows = [["计薪明细", `${y}年${m+1}月`],["项目","天数/时长","单价","金额"]];
+  let plainWork=0; for(const it of c.list) if(it.r.t==="work") plainWork++;
+  rows.push(["正常出勤", plainWork+"天", rate+sub, plainWork*(rate+sub)]);
+  rows.push(["加班日出勤", c.otDays+"天", rate+sub, c.otDays*(rate+sub)]);
+  rows.push(["法定节假日(放假不计薪)", c.holDays+"天", 0, 0]);
+  rows.push(["调休", c.txDays+"天", rate+sub, c.txDays*(rate+sub)]);
+  rows.push(["半天假(计半薪)", c.halfPaid+"天", rate+sub, c.halfPaid*(rate+sub)]);
+  rows.push(["请假/缺勤", c.leaveUnits+"天", 0, 0]);
+  rows.push(["周末休息", c.offDays+"天", 0, 0]);
+  if(c.lateCut > 0) rows.push([`迟到扣款(${c.lateTimes}次/${c.lateMin}分钟)`, "", lateRuleText(), -c.lateCut]);
+  rows.push([]);
+  rows.push(["合计应发" + (c.lateCut>0 ? "(已扣迟到)" : ""), c.paidDays+"天", "", c.total]);
+  rows.push(["基本工资", c.paidDays+"天", rate, c.paidDays*rate]);
+  rows.push(["电脑补贴", c.paidDays+"天", sub, c.paidDays*sub]);
+  rows.push([]);
+  rows.push(["加班累计(小时)", c.otHours],["调休消耗(小时)", c.txHours],["调休池余额(小时)", txPoolAtEndOf(y,m).total]);
+  rows.push([]);
+  rows.push(["逐日明细"]);
+  rows.push(["日期","星期","状态","时长","是否计薪","迟到分钟","扣款","金额"]);
+  const wk=["周日","周一","周二","周三","周四","周五","周六"];
+  for(const it of c.list){
+    const d=parse(it.ds);
+    const cut = lateDeduct(it.r);
+    rows.push([it.ds, wk[d.getDay()], TYPES[it.r.t].name, it.r.h||"", it.paid?"是":"否",
+               num(it.r.late)||"", cut||"", it.paid ? ((rate+sub)*it.f - cut).toFixed(2) : 0]);
+  }
+  const csv = "\ufeff" + rows.map(r=>r.map(x=>{
+    const s = String(x ?? "");
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+  }).join(",")).join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  a.download = `计薪明细_${y}年${m+1}月.csv`;
+  a.click();
+  toast("已导出 CSV");
+}
+
+/* ============ 持久化 ============ */
+function save(){ localStorage.setItem(KEY, JSON.stringify(S)); }
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw){
+      const o = JSON.parse(raw);
+      S = Object.assign(S, o);
+      if(!S.records) S.records = {};
+    }
+    // 一次性迁移：出厂默认工时由 09:00-18:00 调整为 08:30-17:30
+    if(!localStorage.getItem(KEY + "-wt2")){
+      if(S.workStart === "09:00") S.workStart = "08:30";
+      if(S.workEnd   === "18:00") S.workEnd   = "17:30";
+      localStorage.setItem(KEY + "-wt2", "1");
+      try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){}
+    }
+  }catch(e){ console.warn(e); }
+}
+
+/* ============ Toast ============ */
+let tt;
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("on");
+  clearTimeout(tt); tt = setTimeout(()=>t.classList.remove("on"), 1800);
+}
+
+/* ============ 初始化 ============ */
+["p-rate","p-sub","p-hours","p-open"].forEach(id=>{
+  document.getElementById(id).addEventListener("input", e=>{
+    const v = num(e.target.value);
+    if(id==="p-rate") S.rate = v;
+    if(id==="p-sub") S.subsidy = v;
+    if(id==="p-hours") S.stdHours = v || 8;
+    if(id==="p-open") S.opening = v;
+    save(); renderSummary(); renderDetail(); renderLog(); renderLive(); renderCal(); renderLeaves(); renderLates();
+  });
+});
+["p-lpm","p-lfix","p-lgrace"].forEach(id=>{
+  document.getElementById(id).addEventListener("input", e=>{
+    const v = num(e.target.value);
+    if(id==="p-lpm") S.latePerMin = v;
+    if(id==="p-lfix") S.lateFixed = v;
+    if(id==="p-lgrace") S.lateGrace = v;
+    save(); render();
+  });
+});
+document.getElementById("p-lmode").addEventListener("change", e=>{
+  S.lateMode = e.target.value === "fixed" ? "fixed" : "minute";
+  save(); render();
+});
+["p-start","p-ws","p-we","p-ls","p-le"].forEach(id=>{
+  document.getElementById(id).addEventListener("change", e=>{
+    const v = e.target.value;
+    if(id==="p-start") S.startDate = v || "2026-09-20";
+    if(id==="p-ws") S.workStart = v || "08:30";
+    if(id==="p-we") S.workEnd = v || "17:30";
+    if(id==="p-ls") S.lunchStart = v || "12:00";
+    if(id==="p-le") S.lunchEnd = v || "13:00";
+    save(); render();
+  });
+});
+setInterval(()=>{ renderLive(); }, 1000);   // 每秒刷新实时工资
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeModal(); });
+
+load();
+cur = new Date();
+render();
+initHolidayData();          // 读取缓存 + 后台拉取最新放假安排
+</script>
+</body>
+</html>
