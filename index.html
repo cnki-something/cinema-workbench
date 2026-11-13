@@ -910,9 +910,13 @@ function liveToday(){
   const now = new Date();
   sec = workedSec(now);
   amt = sec * perSec;
-  note = (now.getHours()*3600+now.getMinutes()*60+now.getSeconds()) < toSec(S.workStart)
-    ? "尚未到上班时间，计时未开始"
-    : (sec >= span ? "今日工时已完成，按满勤计发" : "正在计时中");
+  const nSec = now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds();
+  const wsS = toSec(S.workStart), weS = toSec(S.workEnd);
+  const lsS = toSec(S.lunchStart), leS = toSec(S.lunchEnd);
+  if(nSec < wsS) note = "尚未到上班时间，计时未开始";
+  else if(nSec >= weS) note = "今日工时已完成，按满勤计发";
+  else if(leS > lsS && nSec >= lsS && nSec < leS) note = `午休中（${S.lunchStart}–${S.lunchEnd}）· ${S.lunchEnd} 自动恢复计时`;
+  else note = "正在计时中";
   return applyLate({t, amt, perSec, span, sec, note, gross: sec*perSec}, r);
 }
 /** 对当日金额应用迟到扣款 */
@@ -987,7 +991,13 @@ function renderLive(){
   const daily = num(S.rate) + num(S.subsidy);
   const T = TYPES[lt.t];
   const st = document.getElementById("live-state");
-  st.innerHTML = `<span class="dot-live" style="background:${T.color}"></span>${T.name} · 每秒 +¥${lt.perSec.toFixed(4)}`;
+  const now = new Date();
+  const nSec = now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds();
+  const lsS = toSec(S.lunchStart), leS = toSec(S.lunchEnd);
+  const inLunch = (lt.t === "work" || lt.t === "ot" || lt.t === "leave") && leS > lsS && nSec >= lsS && nSec < leS;
+  st.innerHTML = inLunch
+    ? `<span class="dot-live" style="background:${T.color}"></span>${T.name} · 午休中，暂停计薪`
+    : `<span class="dot-live" style="background:${T.color}"></span>${T.name} · 每秒 +¥${lt.perSec.toFixed(4)}`;
 
   document.getElementById("live-today").textContent = lt.amt.toFixed(4);
   const pct = lt.span ? Math.min(100, lt.sec / lt.span * 100) : 0;
